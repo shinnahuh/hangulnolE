@@ -5,53 +5,33 @@
     <title>초롱유치원 한글 놀이</title>
     <style>
         body { background: #fdfdfd; margin: 0; overflow: hidden; touch-action: none; font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; flex-direction: column; align-items: center; }
-        
-        /* 1. 초기 친구 선택 화면 스타일 */
         #start-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #f5f7fa; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding-top: 40px; box-sizing: border-box; }
         #start-screen h1 { font-size: 40px; color: #333; margin-bottom: 20px; font-weight: 900; }
-        
-        /* 상단 버튼 그룹 */
         .start-btn-group { display: flex; gap: 15px; margin-bottom: 20px; }
         .btn-add-friend { background: #34C759; color: white; padding: 12px 24px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3); }
         .btn-direct-input { background: #007AFF; color: white; padding: 12px 24px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3); }
-        
         .friend-list { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; max-width: 1100px; padding: 20px; padding-bottom: 100px; }
         .friend-card { width: 180px; background: white; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); padding: 15px; text-align: center; cursor: pointer; transition: transform 0.2s; border: 3px solid transparent; position: relative; }
         .friend-card:hover { transform: scale(1.05); border-color: #007AFF; }
         .friend-card img { width: 140px; height: 140px; border-radius: 15px; object-fit: cover; background: #eee; margin-bottom: 10px; }
         .friend-card span { font-size: 24px; font-weight: 800; color: #333; }
-
-        /* 카드 삭제 버튼 (X) */
         .btn-delete-card { position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; background: #FF3B30; color: white; border-radius: 50%; border: none; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-
-        /* 2. 게임 화면 스타일 */
         #menu { margin-top: 20px; display: flex; gap: 10px; align-items: center; z-index: 100; }
         #hint-box { display: flex; align-items: center; gap: 15px; background: #fff; padding: 10px 30px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         #current-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: none; background: #eee; }
         #hint { font-size: 40px; font-weight: 900; color: #333; letter-spacing: 10px; }
-        
         .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: transform 0.1s; }
         .btn:active { transform: scale(0.95); }
         .btn-reset { background: #ffcc00; color: #333; }
         .btn-change { background: #007AFF; color: white; }
         .btn-home { background: #aeaeae; color: white; }
-
-        /* 조립 판 */
         #drop-zone { display: flex; gap: 30px; margin-top: 40px; min-height: 300px; }
         .char-box { width: 250px; height: 250px; border: 4px solid #f0f0f0; background: white; position: relative; border-radius: 30px; }
-
-        /* 자모 조각 */
         .jamo { position: absolute; font-size: 100px; font-weight: 900; color: #444; cursor: grab; user-select: none; line-height: 1; z-index: 50; padding: 10px; }
         .jamo.in-box { color: #007AFF; z-index: 40; }
-
-        /* 하단 보관함 */
         #bin { width: 100%; height: 200px; background: #f9f9f9; border-top: 2px solid #eee; position: fixed; bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; padding: 20px; }
         .jamo.ready { position: static; font-size: 80px; background: white; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-
-        /* 유치원 로고 */
         #logo { position: fixed; bottom: 20px; right: 20px; width: 150px; height: auto; opacity: 0.8; pointer-events: none; }
-        
-        /* 숨겨진 파일 인풋 */
         #file-input { display: none; }
     </style>
 </head>
@@ -83,7 +63,6 @@
     <img src="로고.png" id="logo" alt="초롱유치원 로고">
 
     <script>
-        // 20명 목록 세팅
         let defaultNames = [
             "강예린", "김겨울", "김다현", "김유나", "김지율", 
             "박지욱", "박채이", "배소이", "서이하진", "안서율", 
@@ -93,7 +72,6 @@
 
         let friendsData = [];
 
-        // 대문자 PNG든 소문자 png든 무조건 다 찔러보는 마법의 경로 해결책
         defaultNames.forEach(name => {
             friendsData.push({ name: name, photo: name + ".png", altPhoto: name + ".PNG" });
         });
@@ -116,7 +94,6 @@
 
         function makeStartScreen() {
             friendListDiv.innerHTML = '';
-            
             friendsData.forEach((friend, index) => {
                 const card = document.createElement('div');
                 card.className = 'friend-card';
@@ -129,8 +106,6 @@
                 const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23ddd'/><text x='50%' y='55%' font-size='40' font-weight='bold' text-anchor='middle' fill='%23aaa'>👤</text></svg>";
                 
                 img.src = friend.photo || defaultAvatar;
-                
-                // 첫 번째 경로(소문자 .png) 실패 시 대문자 .PNG로 찌르고, 그것도 없으면 👤 아이콘으로!
                 img.onerror = () => { 
                     if (friend.altPhoto && img.src !== window.location.origin + window.location.pathname + friend.altPhoto) {
                         img.src = friend.altPhoto;
@@ -179,7 +154,6 @@
                         const newFriend = { name: friendName, photo: event.target.result };
                         customFriends.push(newFriend);
                         localStorage.setItem('chorong_custom_friends', JSON.stringify(customFriends));
-                        
                         friendsData.push(newFriend);
                         makeStartScreen();
                     };
@@ -189,7 +163,6 @@
                     const newFriend = { name: friendName, photo: "" };
                     customFriends.push(newFriend);
                     localStorage.setItem('chorong_custom_friends', JSON.stringify(customFriends));
-
                     friendsData.push(newFriend);
                     makeStartScreen();
                 }
@@ -212,9 +185,7 @@
             initGame(name);
         }
 
-        function goHome() {
-            startScreen.style.display = 'flex';
-        }
+        function goHome() { startScreen.style.display = 'flex'; }
 
         function getJamoList(word) {
             const cho = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
@@ -239,7 +210,6 @@
                 currentPhotoImg.src = currentPhoto;
                 currentPhotoImg.style.display = 'block';
                 currentPhotoImg.onerror = () => { 
-                    // 게임화면 상단 힌트창에서도 대문자 PNG 백업 작동
                     const altPath = currentName + ".PNG";
                     if(currentPhotoImg.src !== window.location.origin + window.location.pathname + altPath) {
                         currentPhotoImg.src = altPath;
