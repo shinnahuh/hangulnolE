@@ -83,30 +83,34 @@
     <img src="로고.png" id="logo" alt="초롱유치원 로고">
 
     <script>
-        // 기본 20명 명단 (사진 매칭 실패 에러 방지 처리 완료)
-        const defaultNames = [
-            "강예린", "김겨울", "김다현", "김유나", "김지율", 
-            "박지욱", "박채이", "배소이", "서이하진", "안서율", 
-            "양다인", "이설아", "이채원", "정유준", "조이준", 
-            "조해든", "최건우", "홍시헌", "허신나", "이나연"
+        // 에러를 원천 차단하기 위해 20명 목록을 처음부터 확실하게 세팅합니다.
+        let friendsData = [
+            { name: "강예린", photo: "강예린.png" },
+            { name: "김겨울", photo: "김겨울.png" },
+            { name: "김다현", photo: "김다현.png" },
+            { name: "김유나", photo: "김유나.png" },
+            { name: "김지율", photo: "김지율.png" },
+            { name: "박지욱", photo: "박지욱.png" },
+            { name: "박채이", photo: "박채이.png" },
+            { name: "배소이", photo: "배소이.png" },
+            { name: "서이하진", photo: "서이하진.png" },
+            { name: "안서율", photo: "안서율.png" },
+            { name: "양다인", photo: "양다인.png" },
+            { name: "이설아", photo: "이설아.png" },
+            { name: "이채원", photo: "이채원.png" },
+            { name: "정유준", photo: "정유준.png" },
+            { name: "조이준", photo: "조이준.png" },
+            { name: "조해든", photo: "조해든.png" },
+            { name: "최건우", photo: "최건우.png" },
+            { name: "홍시헌", photo: "홍시헌.png" },
+            { name: "허신나", photo: "허신나.png" },
+            { name: "이나연", photo: "이나연.png" }
         ];
 
-        let friendsData = [];
-        
-        // 데이터 불러오기 및 기본 명단 채우기
-        function loadFriends() {
-            friendsData = [];
-            
-            // 1. 기본 20명 명단 기본 아이콘(👤) 세팅
-            defaultNames.forEach(name => {
-                friendsData.push({ name: name, photo: "" });
-            });
-
-            // 2. LocalStorage에서 현장 추가된 친구 가져와서 합치기
-            if (localStorage.getItem('chorong_custom_friends')) {
-                const customFriends = JSON.parse(localStorage.getItem('chorong_custom_friends'));
-                friendsData = [...friendsData, ...customFriends];
-            }
+        // 현장 추가용 임시 저장소 데이터가 있다면 목록 뒤에 쏙 붙이기
+        if (localStorage.getItem('chorong_custom_friends')) {
+            const custom = JSON.parse(localStorage.getItem('chorong_custom_friends'));
+            friendsData = friendsData.concat(custom);
         }
 
         let currentName = "";
@@ -120,23 +124,18 @@
         const currentPhotoImg = document.getElementById('current-photo');
         const fileInput = document.getElementById('file-input');
 
-        // 친구 선택 화면 그리기 (에러에 절대 멈추지 않는 방어 코드 적용)
         function makeStartScreen() {
-            loadFriends();
             friendListDiv.innerHTML = '';
             
             friendsData.forEach((friend, index) => {
                 const card = document.createElement('div');
                 card.className = 'friend-card';
-                
                 card.onclick = (e) => {
                     if(e.target.className === 'btn-delete-card') return;
                     selectFriend(friend.name, friend.photo);
                 };
                 
                 const img = document.createElement('img');
-                
-                // 💡 핵심 수정: 사진이 있으면 사진을 넣고, 없거나 에러나면 무조건 안전하게 👤로 대체
                 const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23ddd'/><text x='50%' y='55%' font-size='40' font-weight='bold' text-anchor='middle' fill='%23aaa'>👤</text></svg>";
                 
                 img.src = friend.photo || defaultAvatar;
@@ -151,8 +150,9 @@
                 delBtn.onclick = (e) => {
                     e.stopPropagation();
                     if(confirm(`${friend.name} 친구를 목록에서 숨길까요?`)) {
-                        if (index >= defaultNames.length) {
-                            const customIndex = index - defaultNames.length;
+                        // 20명 기본명단 외에 직접 추가한 친구 지우기
+                        if (index >= 20) {
+                            const customIndex = index - 20;
                             let customFriends = JSON.parse(localStorage.getItem('chorong_custom_friends')) || [];
                             customFriends.splice(customIndex, 1);
                             localStorage.setItem('chorong_custom_friends', JSON.stringify(customFriends));
@@ -179,15 +179,21 @@
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         let customFriends = JSON.parse(localStorage.getItem('chorong_custom_friends')) || [];
-                        customFriends.push({ name: friendName, photo: event.target.result });
+                        const newFriend = { name: friendName, photo: event.target.result };
+                        customFriends.push(newFriend);
                         localStorage.setItem('chorong_custom_friends', JSON.stringify(customFriends));
+                        
+                        friendsData.push(newFriend);
                         makeStartScreen();
                     };
                     reader.readAsDataURL(file);
                 } else {
                     let customFriends = JSON.parse(localStorage.getItem('chorong_custom_friends')) || [];
-                    customFriends.push({ name: friendName, photo: "" });
+                    const newFriend = { name: friendName, photo: "" };
+                    customFriends.push(newFriend);
                     localStorage.setItem('chorong_custom_friends', JSON.stringify(customFriends));
+
+                    friendsData.push(newFriend);
                     makeStartScreen();
                 }
             };
@@ -211,7 +217,6 @@
 
         function goHome() {
             startScreen.style.display = 'flex';
-            makeStartScreen();
         }
 
         function getJamoList(word) {
@@ -325,4 +330,8 @@
             }
         }
 
-        //
+        // 실행
+        makeStartScreen();
+    </script>
+</body>
+</html>
