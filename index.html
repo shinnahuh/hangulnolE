@@ -93,7 +93,7 @@
 
         let friendsData = [];
 
-        // 💡 대문자 PNG든 소문자 png든 무조건 다 찔러보는 마법의 경로 해결책
+        // 대문자 PNG든 소문자 png든 무조건 다 찔러보는 마법의 경로 해결책
         defaultNames.forEach(name => {
             friendsData.push({ name: name, photo: name + ".png", altPhoto: name + ".PNG" });
         });
@@ -130,7 +130,7 @@
                 
                 img.src = friend.photo || defaultAvatar;
                 
-                // 💡 첫 번째 경로(소문자 .png) 실패 시 대문자 .PNG로 찌르고, 그것도 없으면 👤 아이콘으로!
+                // 첫 번째 경로(소문자 .png) 실패 시 대문자 .PNG로 찌르고, 그것도 없으면 👤 아이콘으로!
                 img.onerror = () => { 
                     if (friend.altPhoto && img.src !== window.location.origin + window.location.pathname + friend.altPhoto) {
                         img.src = friend.altPhoto;
