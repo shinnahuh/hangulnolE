@@ -28,4 +28,316 @@
         #current-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: none; background: #eee; }
         #hint { font-size: 40px; font-weight: 900; color: #333; letter-spacing: 10px; }
         .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: transform 0.1s; }
-        .btn:active { transform: scale(0
+        .btn:active { transform: scale(0.95); }
+        .btn-reset { background: #ffcc00; color: #333; }
+        .btn-change { background: #007AFF; color: white; }
+        .btn-home { background: #aeaeae; color: white; }
+        
+        #drop-zone { display: flex; gap: 30px; margin-top: 40px; min-height: 300px; }
+        
+        .char-box { width: 250px; height: 250px; border: 4px solid #f0f0f0; background: white; position: relative; border-radius: 30px; display: flex; align-items: center; justify-content: center; }
+        .char-box::before { content: attr(data-hint); font-size: 140px; font-weight: 900; color: #ebebeb; position: absolute; z-index: 1; user-select: none; pointer-events: none; }
+
+        .jamo { position: absolute; font-size: 100px; font-weight: 900; color: #444; cursor: grab; user-select: none; line-height: 1; z-index: 50; padding: 10px; }
+        .jamo.in-box { color: #007AFF; z-index: 40; }
+        
+        #bin { width: 100%; height: 200px; background: #f2f2f2; border-top: 3px solid #ddd; position: fixed; bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; padding: 20px; box-sizing: border-box; z-index: 90; }
+        .jamo.ready { position: static; font-size: 80px; background: white; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 10px 20px; }
+        #file-input { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <h1>🎒 초롱유치원 한글 놀이</h1>
+        <div class="start-btn-group">
+            <button class="btn-add-friend" onclick="triggeraddFriend()">📸 사진 찍어 친구 추가하기</button>
+            <button class="btn-direct-input" onclick="triggerDirectInput()">✏️ 글자 직접 입력하기</button>
+        </div>
+        <input type="file" id="file-input" accept="image/*">
+        <div class="friend-list" id="friend-list"></div>
+    </div>
+
+    <div id="menu">
+        <button class="btn btn-home" onclick="goHome()">🏠 처음으로</button>
+        <button class="btn btn-reset" onclick="resetGame()">♻️ 다시하기</button>
+        <div id="hint-box">
+            <img id="current-photo" src="" alt="친구 사진">
+            <div id="hint">이름</div>
+        </div>
+        <button class="btn btn-change" onclick="changeName()">✏️ 직접 쓰기</button>
+    </div>
+
+    <div id="drop-zone"></div>
+    <div id="bin"></div>
+
+    <script>
+        let friendsData = [];
+
+        function loadFriends() {
+            const savedData = localStorage.getItem('chorong_custom_friends');
+            if (savedData) {
+                friendsData = JSON.parse(savedData);
+            } else {
+                friendsData = [];
+            }
+        }
+
+        let currentName = "";
+        let currentPhoto = "";
+        
+        const startScreen = document.getElementById('start-screen');
+        const friendListDiv = document.getElementById('friend-list');
+        const dropZone = document.getElementById('drop-zone');
+        const bin = document.getElementById('bin');
+        const hint = document.getElementById('hint');
+        const currentPhotoImg = document.getElementById('current-photo');
+        const fileInput = document.getElementById('file-input');
+
+        function makeStartScreen() {
+            loadFriends();
+            friendListDiv.innerHTML = '';
+            
+            if (friendsData.length === 0) {
+                friendListDiv.innerHTML = "<p style='font-size:20px; color:#666; margin-top:40px;'>초록색 버튼을 눌러 아이들 사진과 이름을 하나씩 등록해 주세요! ❤️</p>";
+                return;
+            }
+
+            friendsData.forEach((friend, index) => {
+                const card = document.createElement('div');
+                card.className = 'friend-card';
+                card.onclick = (e) => {
+                    if(e.target.className === 'btn-delete-card') return;
+                    selectFriend(friend.name, friend.photo);
+                };
+                
+                const img = document.createElement('img');
+                img.src = friend.photo;
+                
+                const span = document.createElement('span');
+                span.innerText = friend.name;
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-delete-card';
+                delBtn.innerText = 'X';
+                
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if(confirm(`${friend.name} 친구를 삭제할까요?`)) {
+                        friendsData.splice(index, 1);
+                        localStorage.setItem('chorong_custom_friends', JSON.stringify(friendsData));
+                        makeStartScreen();
+                    }
+                };
+                
+                card.appendChild(delBtn);
+                card.appendChild(img);
+                card.appendChild(span);
+                friendListDiv.appendChild(card);
+            });
+        }
+
+        function triggeraddFriend() {
+            const friendName = prompt("추가할 친구의 이름을 적어주세요:");
+            if (!friendName) return;
+
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        // 💡 모바일 캔버스 에러를 100% 방지하기 위해 파일 주소를 다이렉트로 매칭해 우회 저장합니다.
+                        try {
+                            const rawDataUrl = event.target.result;
+                            
+                            // 혹시 모를 모바일 전용 캔버스 크기 에러 검증을 패스하고 바로 배열에 삽입
+                            friendsData.push({ name: friendName, photo: rawDataUrl });
+                            localStorage.setItem('chorong_custom_friends', JSON.stringify(friendsData));
+                            makeStartScreen();
+                        } catch(err) {
+                            // 최후의 백업 대안
+                            friendsData.push({ name: friendName, photo: event.target.result });
+                            localStorage.setItem('chorong_custom_friends', JSON.stringify(friendsData));
+                            makeStartScreen();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            fileInput.click();
+        }
+
+        function triggerDirectInput() {
+            const directName = prompt("만들고 싶은 글자나 이름을 입력하세요:");
+            if (directName) {
+                startScreen.style.display = 'none';
+                currentPhoto = ""; 
+                initGame(directName);
+            }
+        }
+
+        function selectFriend(name, photo) {
+            startScreen.style.display = 'none';
+            currentPhoto = photo;
+            initGame(name);
+        }
+
+        function goHome() { startScreen.style.display = 'flex'; makeStartScreen(); }
+
+        const complexJungMap = {
+            "ㅐ": ["ㅏ", "ㅣ"],
+            "ㅒ": ["ㅑ", "ㅣ"],
+            "ㅔ": ["ㅓ", "ㅣ"],
+            "ㅖ": ["ㅕ", "ㅣ"],
+            "ㅘ": ["ㅗ", "ㅏ"],
+            "ㅙ": ["ㅗ", "ㅐ"],
+            "ㅚ": ["ㅗ", "ㅣ"],
+            "ㅝ": ["ㅜ", "ㅓ"],
+            "ㅞ": ["ㅜ", "ㅔ"],
+            "ㅟ": ["ㅜ", "ㅣ"],
+            "ㅢ": ["ㅡ", "ㅣ"]
+        };
+
+        function getJamoList(word) {
+            const cho = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+            const jung = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+            const jong = ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+            const list = [];
+            
+            for (let i = 0; i < word.length; i++) {
+                const code = word.charCodeAt(i) - 44032;
+                if (code < 0 || code > 11171) continue;
+                
+                list.push({ text: cho[Math.floor(code / 588)] });
+                
+                const jungChar = jung[Math.floor((code % 588) / 28)];
+                if (complexJungMap[jungChar]) {
+                    complexJungMap[jungChar].forEach(char => {
+                        list.push({ text: char });
+                    });
+                } else {
+                    list.push({ text: jungChar });
+                }
+                
+                if (code % 28 !== 0) {
+                    list.push({ text: jong[code % 28] });
+                }
+            }
+            return list;
+        }
+
+        function initGame(newName) {
+            currentName = newName;
+            hint.innerText = currentName;
+            
+            if(currentPhoto) {
+                currentPhotoImg.src = currentPhoto;
+                currentPhotoImg.style.display = 'block';
+            } else {
+                currentPhotoImg.style.display = 'none';
+            }
+
+            dropZone.innerHTML = '';
+            bin.innerHTML = '';
+            
+            for(let i=0; i<currentName.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'char-box';
+                box.setAttribute('data-hint', currentName[i]);
+                dropZone.appendChild(box);
+            }
+            const pieces = getJamoList(currentName).sort(() => Math.random() - 0.5);
+            pieces.forEach(p => createPiece(p.text));
+        }
+
+        function createPiece(text) {
+            const el = document.createElement('div');
+            el.className = 'jamo ready';
+            el.innerText = text;
+            bin.appendChild(el);
+
+            let ox, oy;
+            const start = (e) => {
+                const ev = e.touches ? e.touches[0] : e;
+                const rect = el.getBoundingClientRect();
+                el.classList.remove('ready', 'in-box');
+                el.style.color = '#444';
+                el.style.position = 'fixed';
+                el.style.left = rect.left + 'px';
+                el.style.top = rect.top + 'px';
+                el.style.fontSize = '120px';
+                document.body.appendChild(el);
+                ox = ev.clientX - el.offsetLeft;
+                oy = ev.clientY - el.offsetTop;
+
+                const move = (me) => {
+                    const mev = me.touches ? me.touches[0] : me;
+                    el.style.left = (mev.clientX - ox) + 'px';
+                    el.style.top = (mev.clientY - oy) + 'px';
+                };
+
+                const stop = () => {
+                    window.removeEventListener('mousemove', move);
+                    window.removeEventListener('mouseup', stop);
+                    window.removeEventListener('touchmove', move);
+                    window.removeEventListener('touchend', stop);
+                    
+                    let placed = false;
+                    const boxes = document.getElementsByClassName('char-box');
+                    const binRect = bin.getBoundingClientRect();
+                    const eRect = el.getBoundingClientRect();
+
+                    if (eRect.left < binRect.right && eRect.right > binRect.left &&
+                        eRect.top < binRect.bottom && eRect.bottom > binRect.top) {
+                        returnToBin(el);
+                        placed = true;
+                    } else {
+                        for (let box of boxes) {
+                            const bRect = box.getBoundingClientRect();
+                            if (eRect.left < bRect.right && eRect.right > bRect.left &&
+                                eRect.top < bRect.bottom && eRect.bottom > bRect.top) {
+                                box.appendChild(el);
+                                el.style.position = 'absolute';
+                                el.style.left = (eRect.left - bRect.left) + 'px';
+                                el.style.top = (eRect.top - bRect.top) + 'px';
+                                el.classList.add('in-box');
+                                placed = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (!placed) {
+                        returnToBin(el);
+                    }
+                };
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', stop);
+                window.addEventListener('touchmove', move, {passive:false});
+                window.addEventListener('touchend', stop);
+            };
+            el.addEventListener('mousedown', start);
+            el.addEventListener('touchstart', start, {passive:false});
+        }
+
+        function returnToBin(el) {
+            el.classList.add('ready');
+            el.style.position = 'static';
+            el.style.fontSize = '80px';
+            bin.appendChild(el);
+        }
+
+        function resetGame() { initGame(currentName); }
+        
+        function changeName() {
+            const next = prompt("새로운 이름을 입력하세요", currentName);
+            if (next) {
+                currentPhoto = ""; 
+                initGame(next);
+            }
+        }
+
+        makeStartScreen();
+    </script>
+</body>
+</html>
