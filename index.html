@@ -3,32 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>초롱유치원 한글 블록</title>
+    <script>
+        // 💡 선생님, 여기에 아까 메모장에 있던 긴 텍스트를 통째로 붙여넣으세요!
+        // 예: const MY_DATA = '{"햇살반":[{"name":"지우","photo":"data:image/jpeg;base64,..."}]}';
+        const MY_DATA = '여기에_붙여넣으세요';
+
+        // 학부모용 페이지는 무조건 이 데이터를 강제로 로딩합니다.
+        localStorage.setItem('chorong_multi_classes', MY_DATA);
+    </script>
     <style>
-        /* [중요] 스타일과 기능 코드를 제가 여기에 완벽하게 다시 정리했습니다. */
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; }
-        .btn-game { padding: 10px 20px; border-radius: 10px; cursor: pointer; border: none; font-weight: bold; margin: 5px; }
-        #drop-zone { display: flex; gap: 20px; margin-top: 50px; }
-        .char-box { width: 150px; height: 150px; border: 3px solid #ddd; border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .char-box::before { content: attr(data-hint); font-size: 80px; color: #eee; position: absolute; }
-        .jamo { font-size: 60px; font-weight: 900; color: #333; cursor: grab; position: absolute; z-index: 10; }
-        #bin { width: 100%; height: 150px; background: #eee; position: fixed; bottom: 0; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        /* (위에서 드린 예쁜 디자인 코드 그대로 사용하세요) */
     </style>
 </head>
 <body>
-    <div id="start-screen">
-        <h1>우리 반 한글 블록</h1>
-        <div id="btn-group-area">
-            <button class="btn-game" onclick="document.getElementById('file-input').click()">📸 사진 추가</button>
-            <button class="btn-game" onclick="exportToFile()">💾 파일 저장</button>
-            <button class="btn-game" onclick="document.getElementById('import-file-input').click()">📂 파일 불러오기</button>
-        </div>
-        <input type="file" id="file-input" style="display:none" accept="image/*">
-        <input type="file" id="import-file-input" style="display:none" accept=".txt">
-        <div id="main-list-area"></div>
-    </div>
     <script>
-        // [여기에 제가 드린 최종 코드를 넣으세요]
-        // (위의 코드를 복사해서 index.html에 붙여넣고 커밋하세요)
+        // ... (아까 드린 전체 스크립트 로직 그대로 유지)
+        // 맨 밑에 showFolderView(); 만 실행되게 하면 끝!
+        showFolderView();
     </script>
 </body>
 </html>
