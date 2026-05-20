@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>초롱유치원 한글 놀이</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
         body { background: #fdfdfd; margin: 0; overflow: hidden; touch-action: none; font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; flex-direction: column; align-items: center; }
         
@@ -168,6 +169,7 @@
             });
         }
 
+        // 💡 [초강력 압축 필터] 내보낼 때 텍스트를 기가 막히게 압축 처리
         function exportData() {
             loadAllData();
             if (Object.keys(totalData).length === 0) {
@@ -176,22 +178,34 @@
             }
             const dataStr = JSON.stringify(totalData);
             
+            // LZ-String 압축 기술 적용 (글자 수를 획기적으로 축소)
+            const compressed = LZString.compressToBase64(dataStr);
+            
             const el = document.createElement('textarea');
-            el.value = dataStr;
+            el.value = compressed;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
             
-            alert("전체 반과 아이들 사진 데이터가 복사되었습니다! 👍\n카카오톡이나 메일로 다른 기기에 이 글자를 전송한 뒤 [데이터 가져오기]에 붙여넣으세요.");
+            alert("전체 데이터 코드가 획기적으로 압축되어 복사되었습니다! 👍\n카카오톡 알림장에 훨씬 가볍게 붙여넣으실 수 있습니다.");
         }
 
+        // 💡 가져오기 할 때 압축된 코드를 알아서 원본으로 해제
         function importData() {
             const code = prompt("복사해 온 백업 데이터를 여기에 붙여넣어 주세요 (Ctrl + V 또는 꾹 눌러서 붙여넣기):");
             if (!code) return;
             
             try {
-                const parsed = JSON.parse(code);
+                let finalDataStr = "";
+                // 입력된 코드가 압축본인지 원본인지 판별해서 안전하게 해제
+                if (code.startsWith("{")) {
+                    finalDataStr = code; // 압축 안 된 옛날 코드 대안
+                } else {
+                    finalDataStr = LZString.decompressFromBase64(code);
+                }
+                
+                const parsed = JSON.parse(finalDataStr);
                 if (typeof parsed === 'object') {
                     if (confirm("기존에 이 기기에 저장되어 있던 데이터가 있다면 싹 사라지고, 새로 가져온 데이터로 덮어씌워집니다. 진행할까요?")) {
                         totalData = parsed;
@@ -284,7 +298,6 @@
                         img.onload = function() {
                             const canvas = document.createElement('canvas');
                             
-                            // 💡 [핵심] 이미지 크기를 강제로 가로세로 최대 140px로 초경량화 시킵니다!
                             let width = img.width;
                             let height = img.height;
                             const max_size = 140; 
@@ -300,7 +313,6 @@
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
                             
-                            // 💡 [핵심] 화질 압축률을 30%(0.3)까지 낮추어 저장 데이터 텍스트 길이를 최소화합니다!
                             const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.3);
                             
                             totalData[currentClass].push({ name: friendName, photo: compressedDataUrl });
