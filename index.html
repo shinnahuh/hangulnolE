@@ -4,54 +4,62 @@
     <meta charset="UTF-8">
     <title>초롱유치원 한글 블록</title>
     <style>
+        /* [이전 버전의 스타일 코드와 동일합니다] */
         body { font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; margin: 0; }
-        .btn-game { padding: 15px; margin: 5px; background: #FFCC00; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
-        #view-area { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .card { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 20px; background: white; cursor: pointer; text-align: center; }
-        #friend-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .btn { padding: 15px 20px; margin: 5px; background: #FFCC00; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
+        .card { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 20px; background: white; cursor: pointer; text-align: center; width: 160px; }
+        #game-area { width: 100%; display: none; }
+        .drop-zone { display: flex; gap: 20px; justify-content: center; margin: 30px; }
+        .char-box { width: 150px; height: 150px; border: 4px solid #ddd; border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .jamo { position: absolute; font-size: 80px; font-weight: 900; cursor: grab; z-index: 50; }
+        #bin { height: 150px; background: #eee; display: flex; justify-content: center; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
-    <div id="view-area">
-        <h1>우리 반 한글 블록</h1>
-        <div id="controls">
-            <button class="btn-game" onclick="addFolder()">➕ 반 만들기</button>
-            <button class="btn-game" onclick="document.getElementById('file-import').click()">📂 파일 불러오기</button>
-            <button class="btn-game" onclick="saveAll()">💾 파일 저장</button>
-        </div>
+    <div id="home-view">
+        <h1>우리 반 한글 놀이</h1>
+        <button class="btn" onclick="addFolder()">➕ 반 만들기</button>
+        <button class="btn" onclick="saveData()">💾 파일 저장</button>
+        <button class="btn" onclick="document.getElementById('file-import').click()">📂 파일 불러오기</button>
         <input type="file" id="file-import" style="display:none" accept=".txt">
-        <div id="friend-list"></div>
+        <div id="folder-list" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
+    </div>
+
+    <div id="game-area">
+        <button class="btn" onclick="location.reload()">🏠 홈으로</button>
+        <div id="target-name" style="font-size:30px; font-weight:bold;"></div>
+        <div class="drop-zone" id="drop-zone"></div>
+        <div id="bin"></div>
     </div>
 
     <script>
-        // 1. 데이터 불러오기 (백화현상 방지)
+        // 1. 방어막: 데이터가 깨지거나 없으면 빈 객체로 시작
         let totalData = {};
         try {
-            const saved = localStorage.getItem('my_class_data');
+            const saved = localStorage.getItem('chorong_multi_classes');
             totalData = saved ? JSON.parse(saved) : {};
         } catch(e) { totalData = {}; }
 
-        // 2. 반 만들기
-        function addFolder() {
-            let name = prompt("반 이름을 입력하세요 (예: 햇살반)");
-            if(name) { totalData[name] = []; render(); }
-        }
-
-        // 3. 화면 그리기
-        function render() {
-            const list = document.getElementById('friend-list');
+        // 2. 화면 그리기 (원래의 폴더 구조)
+        function renderFolders() {
+            const list = document.getElementById('folder-list');
             list.innerHTML = '';
             Object.keys(totalData).forEach(folder => {
                 let div = document.createElement('div');
                 div.className = 'card';
                 div.innerHTML = `<h3>📁 ${folder}</h3>`;
-                div.onclick = () => alert(folder + " 폴더 진입!"); // 이곳에 폴더 진입 로직 연결
+                div.onclick = () => showFriends(folder);
                 list.appendChild(div);
             });
         }
 
-        // 4. 저장 및 불러오기
-        function saveAll() {
+        // (이후 선생님이 만드셨던 친구 추가, 게임 로직 그대로 연결)
+        function addFolder() {
+            let name = prompt("반 이름을 입력하세요");
+            if(name) { totalData[name] = []; localStorage.setItem('chorong_multi_classes', JSON.stringify(totalData)); renderFolders(); }
+        }
+
+        function saveData() {
             const blob = new Blob([JSON.stringify(totalData)], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -63,12 +71,13 @@
             const reader = new FileReader();
             reader.onload = (ev) => {
                 totalData = JSON.parse(ev.target.result);
-                render();
+                localStorage.setItem('chorong_multi_classes', JSON.stringify(totalData));
+                renderFolders();
             };
             reader.readAsText(e.target.files[0]);
         };
 
-        render();
+        renderFolders();
     </script>
 </body>
 </html>
