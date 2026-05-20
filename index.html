@@ -2,51 +2,44 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>초롱유치원 한글 블록</title>
+    <title>한글 블록</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; }
-        .btn { padding: 15px 20px; margin: 10px; background: #FFCC00; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
-        #app-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .card { border: 1px solid #ccc; padding: 10px; margin: 10px; border-radius: 10px; width: 150px; text-align: center; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .btn { padding: 20px; margin: 10px; background: #FFCC00; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        #friend-list { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .card { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 15px; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="app-container">
-        <h1>우리 반 한글 블록</h1>
-        <div id="controls">
-            <button class="btn" onclick="document.getElementById('img-input').click()">사진 추가</button>
-            <button class="btn" onclick="saveData()">파일로 저장</button>
-            <button class="btn" onclick="document.getElementById('file-import').click()">파일 불러오기</button>
-        </div>
-        <input type="file" id="img-input" style="display:none" accept="image/*">
-        <input type="file" id="file-import" style="display:none" accept=".txt">
-        <div id="friend-list" style="display:flex; flex-wrap:wrap;"></div>
+    <h1>우리 반 친구들</h1>
+    <div id="controls">
+        <button class="btn" onclick="document.getElementById('img-input').click()">사진 추가</button>
+        <button class="btn" onclick="saveData()">파일로 저장</button>
+        <button class="btn" onclick="document.getElementById('import-input').click()">파일 불러오기</button>
     </div>
+    <input type="file" id="img-input" style="display:none" accept="image/*">
+    <input type="file" id="import-input" style="display:none" accept=".txt">
+    <div id="friend-list"></div>
 
     <script>
-        // 1. 방어막: 데이터가 깨졌으면 초기화하고 시작
+        // 에러 방지용 방어막
         let myData = [];
         try {
             const saved = localStorage.getItem('my_class_data');
             myData = saved ? JSON.parse(saved) : [];
-        } catch(e) {
-            myData = [];
-            localStorage.setItem('my_class_data', '[]');
-        }
+        } catch(e) { myData = []; }
 
-        // 2. 화면 그리기 (방어막 포함)
         function render() {
             const list = document.getElementById('friend-list');
             list.innerHTML = '';
             myData.forEach((item, idx) => {
                 let div = document.createElement('div');
                 div.className = 'card';
-                div.innerHTML = `<img src="${item.photo}" style="width:100px; height:100px;"><p>${item.name}</p>`;
+                div.innerHTML = `<img src="${item.photo}" style="width:120px; height:120px; object-fit:cover;"><p>${item.name}</p>`;
                 list.appendChild(div);
             });
         }
 
-        // 3. 사진 추가
         document.getElementById('img-input').onchange = (e) => {
             const reader = new FileReader();
             reader.onload = (ev) => {
@@ -60,7 +53,6 @@
             reader.readAsDataURL(e.target.files[0]);
         };
 
-        // 4. 파일 저장
         function saveData() {
             const blob = new Blob([JSON.stringify(myData)], {type: 'text/plain'});
             const a = document.createElement('a');
@@ -69,16 +61,15 @@
             a.click();
         }
 
-        // 5. 파일 불러오기
-        document.getElementById('file-import').onchange = (e) => {
+        document.getElementById('import-input').onchange = (e) => {
             const reader = new FileReader();
             reader.onload = (ev) => {
                 try {
                     myData = JSON.parse(ev.target.result);
                     localStorage.setItem('my_class_data', JSON.stringify(myData));
                     render();
-                    alert("성공적으로 불러왔습니다!");
-                } catch(e) { alert("파일 형식이 올바르지 않습니다."); }
+                    alert("불러오기 성공!");
+                } catch(e) { alert("파일 오류입니다."); }
             };
             reader.readAsText(e.target.files[0]);
         };
