@@ -1,57 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>초롱유치원 한글 블록</title>
     <style>
         body { background: #fdfdfd; margin: 0; overflow: hidden; touch-action: none; font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; flex-direction: column; align-items: center; }
         
         #start-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #f5f7fa; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding-top: 40px; box-sizing: border-box; }
-        #start-screen h1 { font-size: 40px; color: #333; margin-bottom: 20px; font-weight: 900; }
+        #start-screen h1 { font-size: 36px; color: #333; margin-bottom: 20px; font-weight: 900; }
         
-        .start-btn-group { display: flex; gap: 12px; margin-bottom: 20px; z-index: 1010; flex-wrap: wrap; justify-content: center; }
-        .btn-add-friend { background: #34C759; color: white; padding: 15px 25px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3); }
-        .btn-direct-input { background: #007AFF; color: white; padding: 15px 25px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3); }
+        .start-btn-group { display: flex; gap: 10px; margin-bottom: 20px; z-index: 1010; flex-wrap: wrap; justify-content: center; padding: 0 10px; }
+        button { cursor: pointer; border: none; font-weight: bold; transition: transform 0.1s; }
+        button:active { transform: scale(0.95); }
         
-        .btn-backup { background: #FF9500; color: white; padding: 10px 20px; font-size: 15px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 149, 0, 0.2); }
-        .btn-restore { background: #5856D6; color: white; padding: 10px 20px; font-size: 15px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(88, 86, 214, 0.2); }
+        .btn-add-friend { background: #34C759; color: white; padding: 12px 20px; font-size: 16px; border-radius: 20px; box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3); }
+        .btn-direct-input { background: #007AFF; color: white; padding: 12px 20px; font-size: 16px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3); }
         
-        .btn-back { background: #aeaeae; color: white; padding: 10px 20px; font-size: 16px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        /* 파일 방식 전용 버튼 */
+        .btn-backup { background: #FF9500; color: white; padding: 12px 20px; font-size: 16px; border-radius: 20px; box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3); }
+        .btn-restore { background: #5856D6; color: white; padding: 12px 20px; font-size: 16px; border-radius: 20px; box-shadow: 0 4px 10px rgba(88, 86, 214, 0.3); }
+        
+        .btn-back { background: #aeaeae; color: white; padding: 10px 20px; font-size: 16px; border-radius: 10px; margin-bottom: 20px; }
 
-        .friend-list { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; max-width: 1100px; padding: 20px; padding-bottom: 100px; }
+        .friend-list { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1000px; padding: 20px; padding-bottom: 100px; }
         
-        .class-card { width: 220px; height: 180px; background: #FFCC00; border-radius: 25px; box-shadow: 0 8px 20px rgba(255, 204, 0, 0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; border: 4px solid transparent; position: relative; }
-        .class-card:hover { transform: scale(1.05); border-color: #FFA500; }
-        .class-card .folder-icon { font-size: 60px; margin-bottom: 5px; }
-        .class-card span { font-size: 26px; font-weight: 800; color: #444; }
+        .class-card { width: 180px; height: 160px; background: #FFCC00; border-radius: 20px; box-shadow: 0 6px 15px rgba(255, 204, 0, 0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+        .class-card .folder-icon { font-size: 50px; margin-bottom: 5px; }
+        .class-card span { font-size: 22px; font-weight: 800; color: #444; }
 
-        .friend-card { width: 180px; background: white; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); padding: 15px; text-align: center; cursor: pointer; transition: transform 0.2s; border: 3px solid transparent; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .friend-card:hover { transform: scale(1.05); border-color: #007AFF; }
-        .friend-card img { width: 150px; height: 150px; border-radius: 15px; object-fit: cover; background: #eee; margin-bottom: 12px; }
-        .friend-card span { font-size: 24px; font-weight: 800; color: #333; display: block; width: 100%; text-align: center; white-space: nowrap; }
+        .friend-card { width: 160px; background: white; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.08); padding: 15px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; }
+        .friend-card img { width: 130px; height: 130px; border-radius: 15px; object-fit: cover; background: #eee; margin-bottom: 10px; }
+        .friend-card span { font-size: 20px; font-weight: 800; color: #333; }
         
-        .btn-delete-card { position: absolute; top: -10px; right: -10px; width: 32px; height: 32px; background: #FF3B30; color: white; border-radius: 50%; border: none; font-weight: bold; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; }
+        .btn-delete-card { position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; background: #FF3B30; color: white; border-radius: 50%; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; }
         
-        #menu { margin-top: 20px; display: flex; gap: 10px; align-items: center; z-index: 100; }
-        #hint-box { display: flex; align-items: center; gap: 15px; background: #fff; padding: 10px 30px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        #current-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: none; background: #eee; }
-        #hint { font-size: 40px; font-weight: 900; color: #333; letter-spacing: 10px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: transform 0.1s; }
-        .btn:active { transform: scale(0.95); }
+        #menu { margin-top: 20px; display: flex; gap: 10px; align-items: center; z-index: 100; flex-wrap: wrap; justify-content: center; padding: 0 10px; }
+        #hint-box { display: flex; align-items: center; gap: 15px; background: #fff; padding: 10px 25px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        #current-photo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; display: none; background: #eee; }
+        #hint { font-size: 32px; font-weight: 900; color: #333; letter-spacing: 5px; }
+        
+        .btn-game { padding: 10px 15px; border-radius: 10px; font-size: 15px; }
         .btn-reset { background: #ffcc00; color: #333; }
         .btn-change { background: #007AFF; color: white; }
         .btn-home { background: #aeaeae; color: white; }
         
-        #drop-zone { display: flex; gap: 30px; margin-top: 40px; min-height: 300px; }
-        .char-box { width: 250px; height: 250px; border: 4px solid #f0f0f0; background: white; position: relative; border-radius: 30px; display: flex; align-items: center; justify-content: center; }
-        .char-box::before { content: attr(data-hint); font-size: 140px; font-weight: 900; color: #ebebeb; position: absolute; z-index: 1; user-select: none; pointer-events: none; }
-        .jamo { position: absolute; font-size: 100px; font-weight: 900; color: #444; cursor: grab; user-select: none; line-height: 1; z-index: 50; padding: 10px; }
+        #drop-zone { display: flex; gap: 20px; margin-top: 30px; min-height: 250px; flex-wrap: wrap; justify-content: center; }
+        .char-box { width: 200px; height: 200px; border: 4px solid #f0f0f0; background: white; position: relative; border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .char-box::before { content: attr(data-hint); font-size: 120px; font-weight: 900; color: #ebebeb; position: absolute; z-index: 1; user-select: none; pointer-events: none; }
+        .jamo { position: absolute; font-size: 80px; font-weight: 900; color: #444; cursor: grab; user-select: none; line-height: 1; z-index: 50; padding: 10px; }
         .jamo.in-box { color: #007AFF; z-index: 40; }
         
-        #bin { width: 100%; height: 200px; background: #f2f2f2; border-top: 3px solid #ddd; position: fixed; bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; padding: 20px; box-sizing: border-box; z-index: 90; }
-        .jamo.ready { position: static; font-size: 80px; background: white; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 10px 20px; }
-        #file-input { display: none; }
-        #import-file-input { display: none; }
+        #bin { width: 100%; height: 180px; background: #f2f2f2; border-top: 3px solid #ddd; position: fixed; bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; padding: 15px; box-sizing: border-box; z-index: 90; overflow-y: auto; }
+        .jamo.ready { position: static; font-size: 50px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 5px 15px; }
+        
+        /* 숨겨진 파일 입력창 */
+        #file-input, #import-file-input { display: none; }
     </style>
 </head>
 <body>
@@ -60,19 +64,21 @@
         <h1 id="main-title">📂 우리 반을 선택해 주세요</h1>
         <div class="start-btn-group" id="btn-group-area"></div>
         <button class="btn-back" id="btn-back-folder" style="display:none;" onclick="showFolderView()">⬅️ 반 목록으로 돌아가기</button>
+        
         <input type="file" id="file-input" accept="image/*">
         <input type="file" id="import-file-input" accept=".txt">
+        
         <div class="friend-list" id="main-list-area"></div>
     </div>
 
     <div id="menu">
-        <button class="btn btn-home" onclick="goHome()">🏠 처음으로</button>
-        <button class="btn btn-reset" onclick="resetGame()">♻️ 다시하기</button>
+        <button class="btn-game btn-home" onclick="goHome()">🏠 처음으로</button>
+        <button class="btn-game btn-reset" onclick="resetGame()">♻️ 다시하기</button>
         <div id="hint-box">
             <img id="current-photo" src="" alt="친구 사진">
             <div id="hint">이름</div>
         </div>
-        <button class="btn btn-change" onclick="changeName()">✏️ 직접 쓰기</button>
+        <button class="btn-game btn-change" onclick="changeName()">✏️ 직접 쓰기</button>
     </div>
 
     <div id="drop-zone"></div>
@@ -82,7 +88,6 @@
         let totalData = {};
         let currentClass = ""; 
 
-        // 💡 치명적인 백화 현상(하얀 화면)을 막기 위한 안전 장치 (방어 코드)
         function loadAllData() {
             try {
                 const saved = localStorage.getItem('chorong_multi_classes');
@@ -92,8 +97,6 @@
                     totalData = {}; 
                 }
             } catch(e) {
-                // 기존에 저장된 데이터가 깨져서 에러가 나더라도 죽지 않고 초기화되게 만듦
-                console.error("데이터 로드 오류, 초기화합니다.");
                 totalData = {}; 
             }
         }
@@ -104,6 +107,7 @@
 
         let currentName = ""; 
         let currentPhoto = "";
+        
         const startScreen = document.getElementById('start-screen');
         const mainTitle = document.getElementById('main-title');
         const btnGroupArea = document.getElementById('btn-group-area');
@@ -122,18 +126,19 @@
             mainTitle.innerText = "📂 우리 반을 선택해 주세요";
             btnBackFolder.style.display = "none";
             
-            // 직관적인 버튼 생성
+            // 💡 파일 내보내기/가져오기 버튼으로 완벽 교체!
             btnGroupArea.innerHTML = `
-                <button class="btn-add-friend" onclick="addClassFolder()">➕ 우리 반 추가하기</button>
-                <button class="btn-direct-input" onclick="triggerDirectInput()">✏️ 글자 직접 입력하기</button>
-                <button class="btn-backup" onclick="exportToFile()">💾 우리 반 파일로 내보내기</button>
-                <button class="btn-restore" onclick="triggerImportFile()">📂 파일 불러와서 등록</button>
+                <button class="btn-add-friend" onclick="addClassFolder()">➕ 반 폴더 추가</button>
+                <button class="btn-direct-input" onclick="triggerDirectInput()">✏️ 직접 쓰기</button>
+                <button class="btn-backup" onclick="exportToFile()">💾 우리 반 파일로 저장</button>
+                <button class="btn-restore" onclick="triggerImportFile()">📂 파일 불러오기</button>
             `;
             
             mainListArea.innerHTML = '';
             const classes = Object.keys(totalData);
+            
             if (classes.length === 0) {
-                mainListArea.innerHTML = "<p style='font-size:20px; color:#666; margin-top:40px;'>왼쪽 초록색 버튼을 눌러 먼저 '우리 반 폴더'를 추가해 주세요! 💛</p>";
+                mainListArea.innerHTML = "<p style='font-size:18px; color:#666; margin-top:40px; text-align:center;'>왼쪽 초록색 버튼을 눌러 반을 먼저 추가해 주세요! 💛</p>";
                 return;
             }
 
@@ -148,6 +153,7 @@
                 const icon = document.createElement('div');
                 icon.className = 'folder-icon'; 
                 icon.innerText = "📁";
+                
                 const span = document.createElement('span'); 
                 span.innerText = className;
                 
@@ -156,7 +162,7 @@
                 delBtn.innerText = 'X';
                 delBtn.onclick = (e) => {
                     e.stopPropagation();
-                    if(confirm(`[${className}] 반 폴더와 안의 아이들 사진을 모두 삭제할까요?`)) {
+                    if(confirm(`[${className}] 반과 친구들 사진을 모두 삭제할까요?`)) {
                         delete totalData[className]; 
                         saveAllData(); 
                         showFolderView();
@@ -170,31 +176,35 @@
             });
         }
 
+        // 💡 [선생님용] 데이터를 파일로 깔끔하게 저장 (긴 텍스트 복사 ㅂㅂ!)
         function exportToFile() {
             loadAllData();
             if (Object.keys(totalData).length === 0) {
-                alert("내보낼 데이터가 없습니다. 먼저 반과 학생을 등록해 주세요!");
+                alert("내보낼 데이터가 없습니다. 먼저 친구들을 등록해 주세요!");
                 return;
             }
+            
             const dataStr = JSON.stringify(totalData);
             const blob = new Blob([dataStr], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'hangul_class.txt';
+            link.download = '우리반_한글블록.txt';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
             
-            alert("우리 반 아이들 데이터가 'hangul_class.txt' 파일로 저장되었습니다! 👍\n카카오톡으로 학부모님께 이 파일을 그대로 전송해 주세요.");
+            alert("✅ [우리반_한글블록.txt] 파일이 다운로드되었습니다!\n이 파일을 카카오톡 알림장 등에 '파일 첨부'로 보내주시면 됩니다.");
         }
 
+        // 💡 [학부모용] 버튼을 누르면 파일 선택창 띄우기
         function triggerImportFile() {
             importFileInput.click();
         }
 
+        // 학부모님이 파일을 선택하면 작동하는 로직
         importFileInput.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -204,28 +214,26 @@
                 try {
                     const parsed = JSON.parse(evt.target.result);
                     if (typeof parsed === 'object') {
-                        if (confirm("새로운 우리 반 친구들 명단을 가져올까요?")) {
+                        if (confirm("선생님이 보내주신 새로운 친구들 명단을 기기에 등록할까요?")) {
                             totalData = parsed;
                             saveAllData();
                             showFolderView();
-                            alert("우리 반 데이터 등록 완벽 성공! 🥳");
+                            alert("✅ 우리 반 친구들 등록 완료! 🥳");
                         }
-                    } else { 
-                        alert("올바른 파일 형식이 아닙니다."); 
                     }
                 } catch(err) {
-                    alert("파일이 깨졌거나 올바르지 않은 백업 파일입니다.");
+                    alert("파일이 올바르지 않습니다. 다시 확인해 주세요!");
                 }
             };
             reader.readAsText(file);
-            importFileInput.value = '';
+            importFileInput.value = ''; // 초기화
         };
 
         function addClassFolder() {
-            const className = prompt("새로 추가할 반 이름을 입력하세요 (예: 햇살반, 바다반, 새싹반):");
+            const className = prompt("새로 추가할 반 이름을 적어주세요:");
             if (!className) return;
             if (totalData[className]) { 
-                alert("이미 존재하는 반 이름입니다!"); 
+                alert("이미 존재하는 이름입니다!"); 
                 return; 
             }
             totalData[className] = []; 
@@ -235,9 +243,9 @@
 
         function enterClass(className) {
             currentClass = className;
-            mainTitle.innerText = `🎒 [${currentClass}] 친구들 목록`;
+            mainTitle.innerText = `🎒 [${currentClass}] 친구들`;
             btnBackFolder.style.display = "block";
-            btnGroupArea.innerHTML = `<button class="btn-add-friend" onclick="triggeraddFriend()">📸 사진 찍어 친구 추가하기</button>`;
+            btnGroupArea.innerHTML = `<button class="btn-add-friend" onclick="triggeraddFriend()">📸 사진 찍어 친구 추가</button>`;
             renderFriendCards();
         }
 
@@ -245,9 +253,10 @@
             mainListArea.innerHTML = '';
             const friends = totalData[currentClass] || [];
             if (friends.length === 0) {
-                mainListArea.innerHTML = "<p style='font-size:20px; color:#666; margin-top:40px;'>카메라 버튼을 눌러 우리 반 아이들을 등록해 주세요! ❤️</p>";
+                mainListArea.innerHTML = "<p style='font-size:18px; color:#666; margin-top:40px;'>사진을 찍어 우리 반 아이들을 등록해 주세요! ❤️</p>";
                 return;
             }
+            
             friends.forEach((friend, index) => {
                 const card = document.createElement('div'); 
                 card.className = 'friend-card';
@@ -255,21 +264,24 @@
                     if(e.target.className === 'btn-delete-card') return; 
                     selectFriend(friend.name, friend.photo); 
                 };
+                
                 const img = document.createElement('img'); 
                 img.src = friend.photo;
                 const span = document.createElement('span'); 
                 span.innerText = friend.name;
+                
                 const delBtn = document.createElement('button'); 
                 delBtn.className = 'btn-delete-card'; 
                 delBtn.innerText = 'X';
                 delBtn.onclick = (e) => {
                     e.stopPropagation();
-                    if(confirm(`${friend.name} 친구를 삭제할까요?`)) {
+                    if(confirm(`${friend.name} 친구를 지울까요?`)) {
                         totalData[currentClass].splice(index, 1); 
                         saveAllData(); 
                         renderFriendCards();
                     }
                 };
+                
                 card.appendChild(delBtn); 
                 card.appendChild(img); 
                 card.appendChild(span); 
@@ -278,4 +290,175 @@
         }
 
         function triggeraddFriend() {
-            const friendName = prompt("추가할 친구의
+            const friendName = prompt("친구 이름을 적어주세요:");
+            if (!friendName) return;
+            
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            
+                            // 💡 화질 복구! 사진이 깨지지 않게 300px 크기로 넉넉하게 셋팅!
+                            let width = img.width; 
+                            let height = img.height; 
+                            const max_size = 300;
+
+                            if (width > height) { 
+                                if (width > max_size) { height *= max_size / width; width = max_size; } 
+                            } else { 
+                                if (height > max_size) { width *= max_size / height; height = max_size; } 
+                            }
+                            
+                            canvas.width = width; 
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d'); 
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // 화질 압축률 80% 적용 (얼굴 아주 선명함)
+                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                            
+                            totalData[currentClass].push({ name: friendName, photo: compressedDataUrl });
+                            saveAllData(); 
+                            renderFriendCards();
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+                fileInput.value = ''; // 초기화
+            };
+            fileInput.click();
+        }
+
+        function triggerDirectInput() {
+            const directName = prompt("만들고 싶은 글자나 이름을 입력하세요:");
+            if (directName) { 
+                startScreen.style.display = 'none'; 
+                currentPhoto = ""; 
+                initGame(directName); 
+            }
+        }
+
+        function selectFriend(name, photo) { 
+            startScreen.style.display = 'none'; 
+            currentPhoto = photo; 
+            initGame(name); 
+        }
+
+        function goHome() { 
+            startScreen.style.display = 'flex'; 
+            if(currentClass) { enterClass(currentClass); } else { showFolderView(); } 
+        }
+
+        const complexJungMap = { 
+            "ㅐ": ["ㅏ", "ㅣ"], "ㅒ": ["ㅑ", "ㅣ"], "ㅔ": ["ㅓ", "ㅣ"], "ㅖ": ["ㅕ", "ㅣ"], 
+            "ㅘ": ["ㅗ", "ㅏ"], "ㅙ": ["ㅗ", "ㅐ"], "ㅚ": ["ㅗ", "ㅣ"], "ㅝ": ["ㅜ", "ㅓ"], 
+            "ㅞ": ["ㅜ", "ㅔ"], "ㅟ": ["ㅜ", "ㅣ"], "ㅢ": ["ㅡ", "ㅣ"] 
+        };
+
+        // 💡 오타 수정 완료 구역 (ㅛ가 올바르게 작동)
+        function getJamoList(word) {
+            const cho = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+            const jung = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+            const jong = ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+            const list = [];
+            
+            for (let i = 0; i < word.length; i++) {
+                const code = word.charCodeAt(i) - 44032; 
+                if (code < 0 || code > 11171) continue;
+                
+                list.push({ text: cho[Math.floor(code / 588)] });
+                
+                const jungChar = jung[Math.floor((code % 588) / 28)];
+                if (complexJungMap[jungChar]) { 
+                    complexJungMap[jungChar].forEach(char => { list.push({ text: char }); }); 
+                } else { 
+                    list.push({ text: jungChar }); 
+                }
+                
+                if (code % 28 !== 0) { 
+                    list.push({ text: jong[code % 28] }); 
+                }
+            }
+            return list;
+        }
+
+        function initGame(newName) {
+            currentName = newName; 
+            hint.innerText = currentName;
+            
+            if(currentPhoto) { 
+                currentPhotoImg.src = currentPhoto; 
+                currentPhotoImg.style.display = 'block'; 
+            } else { 
+                currentPhotoImg.style.display = 'none'; 
+            }
+            
+            dropZone.innerHTML = ''; 
+            bin.innerHTML = '';
+            
+            for(let i=0; i<currentName.length; i++) {
+                const box = document.createElement('div'); 
+                box.className = 'char-box'; 
+                box.setAttribute('data-hint', currentName[i]); 
+                dropZone.appendChild(box);
+            }
+            
+            const pieces = getJamoList(currentName).sort(() => Math.random() - 0.5);
+            pieces.forEach(p => createPiece(p.text));
+        }
+
+        function createPiece(text) {
+            const el = document.createElement('div'); 
+            el.className = 'jamo ready'; 
+            el.innerText = text; 
+            bin.appendChild(el);
+            
+            let ox, oy;
+            const start = (e) => {
+                const ev = e.touches ? e.touches[0] : e; 
+                const rect = el.getBoundingClientRect();
+                
+                el.classList.remove('ready', 'in-box'); 
+                el.style.color = '#444'; 
+                el.style.position = 'fixed';
+                el.style.left = rect.left + 'px'; 
+                el.style.top = rect.top + 'px'; 
+                el.style.fontSize = '120px';
+                
+                document.body.appendChild(el); 
+                ox = ev.clientX - el.offsetLeft; 
+                oy = ev.clientY - el.offsetTop;
+                
+                const move = (me) => { 
+                    const mev = me.touches ? me.touches[0] : me; 
+                    el.style.left = (mev.clientX - ox) + 'px'; 
+                    el.style.top = (mev.clientY - oy) + 'px'; 
+                };
+                
+                const stop = () => {
+                    window.removeEventListener('mousemove', move); 
+                    window.removeEventListener('mouseup', stop); 
+                    window.removeEventListener('touchmove', move); 
+                    window.removeEventListener('touchend', stop);
+                    
+                    let placed = false; 
+                    const boxes = document.getElementsByClassName('char-box'); 
+                    const binRect = bin.getBoundingClientRect(); 
+                    const eRect = el.getBoundingClientRect();
+                    
+                    if (eRect.left < binRect.right && eRect.right > binRect.left && eRect.top < binRect.bottom && eRect.bottom > binRect.top) { 
+                        returnToBin(el); 
+                        placed = true; 
+                    } else {
+                        for (let box of boxes) {
+                            const bRect = box.getBoundingClientRect();
+                            if (eRect.left < bRect.right && eRect.right > bRect.left && eRect.top < bRect.bottom && eRect.bottom > bRect.top) {
+                                box.appendChild(el); 
+                                el.style.position = 'absolute'; 
+                                el.style.left = (eRect.left - bRect.left) + 'px'; 
+                                el.style.top = (eRect.top - bRect.top)
