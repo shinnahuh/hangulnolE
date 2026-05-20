@@ -15,6 +15,7 @@
         
         .btn-backup { background: #FF9500; color: white; padding: 10px 20px; font-size: 15px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 149, 0, 0.2); }
         .btn-restore { background: #5856D6; color: white; padding: 10px 20px; font-size: 15px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(88, 86, 214, 0.2); }
+        
         .btn-back { background: #aeaeae; color: white; padding: 10px 20px; font-size: 16px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
 
         .friend-list { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; max-width: 1100px; padding: 20px; padding-bottom: 100px; }
@@ -47,4 +48,36 @@
         .jamo { position: absolute; font-size: 100px; font-weight: 900; color: #444; cursor: grab; user-select: none; line-height: 1; z-index: 50; padding: 10px; }
         .jamo.in-box { color: #007AFF; z-index: 40; }
         
-        #bin { width: 100%; height: 200px; background: #f2f2f2; border-top: 3px solid #ddd; position: fixed; bottom:
+        #bin { width: 100%; height: 200px; background: #f2f2f2; border-top: 3px solid #ddd; position: fixed; bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; padding: 20px; box-sizing: border-box; z-index: 90; }
+        .jamo.ready { position: static; font-size: 80px; background: white; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 10px 20px; }
+        #file-input { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <h1 id="main-title">📂 우리 반을 선택해 주세요</h1>
+        <div class="start-btn-group" id="btn-group-area"></div>
+        <button class="btn-back" id="btn-back-folder" style="display:none;" onclick="showFolderView()">⬅️ 반 목록으로 돌아가기</button>
+        <input type="file" id="file-input" accept="image/*">
+        <div class="friend-list" id="main-list-area"></div>
+    </div>
+
+    <div id="menu">
+        <button class="btn btn-home" onclick="goHome()">🏠 처음으로</button>
+        <button class="btn btn-reset" onclick="resetGame()">♻️ 다시하기</button>
+        <div id="hint-box">
+            <img id="current-photo" src="" alt="친구 사진">
+            <div id="hint">이름</div>
+        </div>
+        <button class="btn btn-change" onclick="changeName()">✏️ 직접 쓰기</button>
+    </div>
+
+    <div id="drop-zone"></div>
+    <div id="bin"></div>
+
+    <script>
+        // 선생님의 원래 코드를 여기에 복사해서 넣으시면 됩니다.
+    </script>
+</body>
+</html>
