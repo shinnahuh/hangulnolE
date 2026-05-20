@@ -2,97 +2,74 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>초롱유치원 한글 블록</title>
+    <title>초롱유치원 한글 놀이</title>
     <style>
         body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; margin: 0; }
-        .btn-game { padding: 15px 20px; margin: 10px; background: #FFCC00; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
+        .btn-game { padding: 15px 20px; margin: 5px; background: #FFCC00; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
         #friend-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
-        .card { border: 1px solid #eee; padding: 15px; border-radius: 20px; text-align: center; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .card { border: 1px solid #eee; padding: 15px; border-radius: 20px; text-align: center; background: white; cursor: pointer; width: 150px; }
+        #game-area { width: 100%; display: none; }
+        .drop-zone { display: flex; gap: 20px; justify-content: center; margin: 30px; }
+        .char-box { width: 150px; height: 150px; border: 4px solid #ddd; border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .jamo { position: absolute; font-size: 80px; font-weight: 900; cursor: grab; }
+        #bin { height: 150px; background: #eee; display: flex; justify-content: center; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
-    <h1>우리 반 한글 블록</h1>
-    <div id="controls">
+    <div id="home-view">
+        <h1>우리 반 한글 놀이</h1>
         <button class="btn-game" onclick="document.getElementById('img-input').click()">📸 사진 추가</button>
-        <button class="btn-game" onclick="saveData()">💾 파일 저장</button>
-        <button class="btn-game" onclick="document.getElementById('file-import').click()">📂 파일 불러오기</button>
+        <button class="btn-game" onclick="saveData()">💾 저장</button>
+        <input type="file" id="img-input" style="display:none" accept="image/*">
+        <div id="friend-list"></div>
     </div>
-    <input type="file" id="img-input" style="display:none" accept="image/*">
-    <input type="file" id="file-import" style="display:none" accept=".txt">
-    <div id="friend-list"></div>
+
+    <div id="game-area">
+        <button class="btn-game" onclick="location.reload()">🏠 홈으로</button>
+        <div id="target-name" style="font-size:30px; font-weight:bold;"></div>
+        <div class="drop-zone" id="drop-zone"></div>
+        <div id="bin"></div>
+    </div>
 
     <script>
-        let myData = [];
+        let myData = JSON.parse(localStorage.getItem('my_class_data') || '[]');
         
-        // 1. 방어막: 데이터 로드
-        function init() {
-            try {
-                const saved = localStorage.getItem('my_class_data');
-                myData = saved ? JSON.parse(saved) : [];
-            } catch(e) { myData = []; }
-            render();
-        }
-
-        // 2. 사진/이름 등록
-        document.getElementById('img-input').onchange = (e) => {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const name = prompt("이름을 입력하세요");
-                if(!name) return;
-                
-                // 사진 화질 보존을 위한 캔버스 처리
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 400; // 화질을 결정하는 가로 크기
-                    canvas.height = 400;
-                    canvas.getContext('2d').drawImage(img, 0, 0, 400, 400);
-                    const photoData = canvas.toDataURL('image/jpeg', 0.9); // 고화질 설정
-                    
-                    myData.push({name: name, photo: photoData});
-                    localStorage.setItem('my_class_data', JSON.stringify(myData));
-                    render();
-                };
-                img.src = ev.target.result;
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        };
-
-        // 3. 화면 그리기 (사진이 무조건 나오게!)
+        // 화면 그리기
         function render() {
             const list = document.getElementById('friend-list');
             list.innerHTML = '';
-            myData.forEach((item) => {
+            myData.forEach((item, idx) => {
                 let div = document.createElement('div');
                 div.className = 'card';
-                div.innerHTML = `<img src="${item.photo}" style="width:150px; height:150px; object-fit:cover; border-radius:10px;"><p style="font-weight:bold; font-size:18px;">${item.name}</p>`;
+                div.innerHTML = `<img src="${item.photo}" style="width:120px; height:120px; object-fit:cover;"><p>${item.name}</p>`;
+                div.onclick = () => startGame(item);
                 list.appendChild(div);
             });
         }
 
-        // 4. 파일로 저장
-        function saveData() {
-            const blob = new Blob([JSON.stringify(myData)], {type: 'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'my_class.txt';
-            a.click();
+        // 게임 시작
+        function startGame(item) {
+            document.getElementById('home-view').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('target-name').innerText = item.name;
+            // 여기서 한글 분리 로직과 조립 UI를 그리게 됩니다.
+            // (이후 블록 조립 로직 연결)
         }
 
-        // 5. 파일 불러오기
-        document.getElementById('file-import').onchange = (e) => {
+        document.getElementById('img-input').onchange = (e) => {
             const reader = new FileReader();
             reader.onload = (ev) => {
-                try {
-                    myData = JSON.parse(ev.target.result);
+                const name = prompt("이름을 입력하세요");
+                if(name) {
+                    myData.push({name: name, photo: ev.target.result});
                     localStorage.setItem('my_class_data', JSON.stringify(myData));
                     render();
-                } catch(e) { alert("파일이 올바르지 않습니다."); }
+                }
             };
-            reader.readAsText(e.target.files[0]);
+            reader.readAsDataURL(e.target.files[0]);
         };
 
-        init();
+        render();
     </script>
 </body>
 </html>
