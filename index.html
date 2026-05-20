@@ -2,58 +2,87 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>한글 블록</title>
+    <title>초롱유치원 한글 블록</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #fff; }
-        .btn { padding: 15px; margin: 10px; background: #eee; border: none; border-radius: 10px; font-weight: bold; }
-        #list { display: flex; flex-wrap: wrap; justify-content: center; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; }
+        .btn { padding: 15px 20px; margin: 10px; background: #FFCC00; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
+        #app-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .card { border: 1px solid #ccc; padding: 10px; margin: 10px; border-radius: 10px; width: 150px; text-align: center; }
     </style>
 </head>
 <body>
-    <h1>우리 반 친구들</h1>
-    <div id="btn-area">
-        <button class="btn" onclick="document.getElementById('img-input').click()">사진 추가</button>
-        <button class="btn" onclick="saveToDevice()">파일로 저장</button>
+    <div id="app-container">
+        <h1>우리 반 한글 블록</h1>
+        <div id="controls">
+            <button class="btn" onclick="document.getElementById('img-input').click()">사진 추가</button>
+            <button class="btn" onclick="saveData()">파일로 저장</button>
+            <button class="btn" onclick="document.getElementById('file-import').click()">파일 불러오기</button>
+        </div>
+        <input type="file" id="img-input" style="display:none" accept="image/*">
+        <input type="file" id="file-import" style="display:none" accept=".txt">
+        <div id="friend-list" style="display:flex; flex-wrap:wrap;"></div>
     </div>
-    <input type="file" id="img-input" style="display:none" accept="image/*">
-    <div id="list"></div>
-    <script>
-        // 1. 하얀 화면 방지: 데이터가 없으면 빈 값으로 시작
-        let data = JSON.parse(localStorage.getItem('my_class') || '[]');
-        
-        // 2. 사진 추가 기능
-        document.getElementById('img-input').onchange = (e) => {
-            let file = e.target.files[0];
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                let name = prompt("이름을 입력하세요");
-                if(!name) return;
-                data.push({name: name, photo: ev.target.result});
-                localStorage.setItem('my_class', JSON.stringify(data));
-                render();
-            };
-            reader.readAsDataURL(file);
-        };
 
-        // 3. 파일 저장 기능 (카톡 전송용)
-        function saveToDevice() {
-            let blob = new Blob([JSON.stringify(data)], {type: 'text/plain'});
-            let a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'class_data.txt';
-            a.click();
+    <script>
+        // 1. 방어막: 데이터가 깨졌으면 초기화하고 시작
+        let myData = [];
+        try {
+            const saved = localStorage.getItem('my_class_data');
+            myData = saved ? JSON.parse(saved) : [];
+        } catch(e) {
+            myData = [];
+            localStorage.setItem('my_class_data', '[]');
         }
 
-        // 4. 화면 그리기
+        // 2. 화면 그리기 (방어막 포함)
         function render() {
-            let list = document.getElementById('list');
+            const list = document.getElementById('friend-list');
             list.innerHTML = '';
-            data.forEach((item, idx) => {
+            myData.forEach((item, idx) => {
                 let div = document.createElement('div');
+                div.className = 'card';
                 div.innerHTML = `<img src="${item.photo}" style="width:100px; height:100px;"><p>${item.name}</p>`;
                 list.appendChild(div);
             });
         }
+
+        // 3. 사진 추가
+        document.getElementById('img-input').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const name = prompt("이름을 입력하세요");
+                if(name) {
+                    myData.push({name: name, photo: ev.target.result});
+                    localStorage.setItem('my_class_data', JSON.stringify(myData));
+                    render();
+                }
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        // 4. 파일 저장
+        function saveData() {
+            const blob = new Blob([JSON.stringify(myData)], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'my_class.txt';
+            a.click();
+        }
+
+        // 5. 파일 불러오기
+        document.getElementById('file-import').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    myData = JSON.parse(ev.target.result);
+                    localStorage.setItem('my_class_data', JSON.stringify(myData));
+                    render();
+                    alert("성공적으로 불러왔습니다!");
+                } catch(e) { alert("파일 형식이 올바르지 않습니다."); }
+            };
+            reader.readAsText(e.target.files[0]);
+        };
+
         render();
     </script>
 </body>
