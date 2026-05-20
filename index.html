@@ -6,50 +6,21 @@
     <style>
         body { background: #fdfdfd; margin: 0; overflow: hidden; touch-action: none; font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; flex-direction: column; align-items: center; }
         
-        /* 메뉴 영역 (선생님 요청 추가) */
+        /* 메뉴 버튼 스타일 */
         .admin-bar { width: 100%; display: flex; justify-content: center; gap: 10px; padding: 15px; background: #fff; z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .btn-admin { padding: 10px 20px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        .btn-admin { padding: 10px 20px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; color: white; background: #FF9500; }
 
         /* 선생님이 주신 원래 스타일 */
         #start-screen { position: fixed; top: 60px; left: 0; width: 100vw; height: calc(100vh - 60px); background: #f5f7fa; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding-top: 40px; box-sizing: border-box; }
         #start-screen h1 { font-size: 40px; color: #333; margin-bottom: 20px; font-weight: 900; }
         .start-btn-group { display: flex; gap: 12px; margin-bottom: 20px; z-index: 1010; flex-wrap: wrap; justify-content: center; }
-        .btn-add-friend { background: #34C759; color: white; padding: 15px 25px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-direct-input { background: #007AFF; color: white; padding: 15px 25px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
-        .friend-list { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; padding: 20px; }
-        .friend-card { width: 180px; background: white; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); padding: 15px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; }
+        .btn-add-friend { background: #34C759; color: white; padding: 15px 25px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3); }
+        .btn-direct-input { background: #007AFF; color: white; padding: 15px 25px; font-size: 18px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 122, 255, 0.3); }
+        .friend-list { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; max-width: 1100px; padding: 20px; padding-bottom: 100px; }
+        .friend-card { width: 180px; background: white; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); padding: 15px; text-align: center; cursor: pointer; transition: transform 0.2s; border: 3px solid transparent; position: relative; display: flex; flex-direction: column; align-items: center; }
         .friend-card img { width: 150px; height: 150px; border-radius: 15px; object-fit: cover; background: #eee; margin-bottom: 12px; }
-        .btn-delete-card { position: absolute; top: -10px; right: -10px; width: 32px; height: 32px; background: #FF3B30; color: white; border-radius: 50%; border: none; font-size: 18px; cursor: pointer; }
-        
+        .friend-card span { font-size: 24px; font-weight: 800; color: #333; display: block; width: 100%; text-align: center; white-space: nowrap; }
+        .btn-delete-card { position: absolute; top: -10px; right: -10px; width: 32px; height: 32px; background: #FF3B30; color: white; border-radius: 50%; border: none; font-weight: bold; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; }
         #menu { margin-top: 20px; display: flex; gap: 10px; align-items: center; z-index: 100; }
         #drop-zone { display: flex; gap: 30px; margin-top: 40px; min-height: 300px; }
-        .char-box { width: 250px; height: 250px; border: 4px solid #f0f0f0; background: white; position: relative; border-radius: 30px; display: flex; align-items: center; justify-content: center; }
-        .char-box::before { content: attr(data-hint); font-size: 140px; font-weight: 900; color: #ebebeb; position: absolute; z-index: 1; }
-        .jamo { position: absolute; font-size: 100px; font-weight: 900; color: #444; cursor: grab; z-index: 50; }
-        .jamo.in-box { color: #007AFF; z-index: 40; }
-        #bin { width: 100%; height: 200px; background: #f2f2f2; border-top: 3px solid #ddd; position: fixed; bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; padding: 20px; box-sizing: border-box; z-index: 90; }
-        .jamo.ready { position: static; font-size: 80px; background: white; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 10px 20px; }
-    </style>
-</head>
-<body>
-
-    <div class="admin-bar">
-        <button class="btn-admin" style="background:#FF9500" onclick="addFolder()">➕ 반 추가</button>
-        <button class="btn-admin" style="background:#34C759" onclick="exportData()">💾 데이터 내보내기</button>
-        <button class="btn-admin" style="background:#8E8E93" onclick="document.getElementById('file-in').click()">📂 파일 불러오기</button>
-    </div>
-    <input type="file" id="file-in" style="display:none" accept=".txt">
-
-    <div id="start-screen">
-        <h1 id="main-title">초롱 한글 블록</h1>
-        <div id="folder-list" class="friend-list"></div>
-        <div class="start-btn-group" id="friend-controls" style="display:none;">
-            <button class="btn-add-friend" onclick="triggeraddFriend()">📸 사진 추가</button>
-            <button class="btn-direct-input" onclick="triggerDirectInput()">✏️ 직접 쓰기</button>
-        </div>
-        <input type="file" id="file-input" accept="image/*" style="display:none">
-        <div class="friend-list" id="friend-list"></div>
-    </div>
-
-    <div id="menu" style="display:none;">
-        <button class="
+        .char-box { width: 250px; height
