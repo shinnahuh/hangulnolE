@@ -4,53 +4,68 @@
     <meta charset="UTF-8">
     <title>초롱유치원 한글 블록</title>
     <style>
-        body { font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; margin: 0; }
-        .btn-group { display: flex; gap: 10px; margin: 20px; }
-        .btn { padding: 15px 25px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; color: white; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background: #fdfdfd; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        h1 { color: #444; margin-bottom: 30px; }
+        
+        /* 귀여운 버튼 디자인 */
+        .controls { display: flex; gap: 15px; margin-bottom: 30px; }
+        .btn { padding: 15px 25px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; color: white; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-add { background: #34C759; }
-        .btn-write { background: #007AFF; }
         .btn-save { background: #FF9500; }
         .btn-load { background: #5856D6; }
-        #list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .card { width: 160px; padding: 15px; background: white; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; text-align: center; }
+        .btn:active { transform: scale(0.95); }
+
+        /* 노란색 귀여운 폴더 카드 */
+        .list-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 900px; }
+        .folder-card { width: 180px; height: 160px; background: #FFCC00; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 20px rgba(255, 204, 0, 0.3); transition: transform 0.2s; }
+        .folder-card:hover { transform: scale(1.05); }
+        .folder-icon { font-size: 50px; margin-bottom: 5px; }
+        .folder-name { font-size: 22px; font-weight: 800; color: #444; }
     </style>
 </head>
 <body>
     <h1>📂 우리 반을 선택해 주세요</h1>
-    <div class="btn-group">
-        <button class="btn btn-add" onclick="addFolder()">➕ 반 폴더 추가</button>
-        <button class="btn btn-write" onclick="goDirect()">✏️ 직접 쓰기</button>
-        <button class="btn btn-save" onclick="exportData()">💾 파일 저장</button>
-        <button class="btn btn-load" onclick="document.getElementById('file-in').click()">📂 파일 불러오기</button>
+    <div class="controls">
+        <button class="btn btn-add" onclick="addFolder()">➕ 반 만들기</button>
+        <button class="btn btn-save" onclick="saveAll()">💾 전체 저장</button>
+        <button class="btn btn-load" onclick="document.getElementById('file-in').click()">📂 불러오기</button>
     </div>
     <input type="file" id="file-in" style="display:none" accept=".txt">
-    <div id="list"></div>
+    <div id="list" class="list-container"></div>
 
     <script>
-        let totalData = JSON.parse(localStorage.getItem('my_class_data') || '{}');
+        // 1. 방어막: 데이터 초기화 (백화현상 절대 방지)
+        let totalData = {};
+        try {
+            const saved = localStorage.getItem('my_class_data');
+            totalData = saved ? JSON.parse(saved) : {};
+        } catch(e) { totalData = {}; }
 
+        // 2. 화면 그리기 (귀여운 폴더 디자인 적용)
         function render() {
             const list = document.getElementById('list');
             list.innerHTML = '';
             Object.keys(totalData).forEach(name => {
                 let div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `<h3>📁 ${name}</h3>`;
-                div.onclick = () => alert(name + " 폴더 진입 기능 복구 중"); // 여기에 이전의 그 게임 로직을 그대로 입히면 됩니다.
+                div.className = 'folder-card';
+                div.innerHTML = `<div class="folder-icon">📁</div><div class="folder-name">${name}</div>`;
+                div.onclick = () => alert(name + " 반의 아이들 정보를 불러오는 중..."); // 게임 로직 연결 예정
                 list.appendChild(div);
             });
         }
 
+        // 3. 폴더 생성
         function addFolder() {
-            let name = prompt("반 이름을 입력하세요");
+            let name = prompt("반 이름을 입력하세요 (예: 햇살반)");
             if(name) { totalData[name] = []; localStorage.setItem('my_class_data', JSON.stringify(totalData)); render(); }
         }
 
-        function exportData() {
+        // 4. 저장 및 불러오기
+        function saveAll() {
             const blob = new Blob([JSON.stringify(totalData)], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'my_class.txt';
+            a.download = '초롱유치원_전체데이터.txt';
             a.click();
         }
 
